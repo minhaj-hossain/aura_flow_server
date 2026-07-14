@@ -191,7 +191,67 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
 });
 
 /**
- * 🔍 GET: /api/items/:id
+ * 📂 3. GET: /api/items/manage
+ * Fetches user-created assets formatted directly as an array for the management dashboard layout.
+ * Optional query: ?userEmail=user@example.com to scope results down to a single user context.
+ */
+/**
+ * 📂 3. GET: /api/items/manage
+ * Fetches user-created assets formatted directly for the management dashboard layout.
+ * Accurately maps all fields and handles flexible frontend payload expectations.
+ */
+router.get("/manage", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const db = client.db("auraflow");
+    const collection = db.collection<DbItem>("items");
+
+    // 1. Defensively capture both 'userEmail' and 'email' query variants
+    const emailQuery = req.query.userEmail || req.query.email;
+    const userEmail = emailQuery ? String(emailQuery).trim() : "";
+
+    const filter: any = {};
+    if (userEmail) {
+      filter.userEmail = userEmail;
+    }
+
+    // Fetch all records for the management list workspace sorted by newest
+    const rawItems = await collection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // 2. Structure Normalization Layer (Keeps keys 100% identical to your main GET endpoint)
+    const normalizedTemplates = rawItems.map((item: any) => ({
+      id: item._id?.toString() || Math.random().toString(),
+      title: item.name || "Untitled Template",
+      description: item.description || "No description provided.",
+      category: item.category || "General",
+      status: item.priority ? String(item.priority).toLowerCase() : "medium",
+      price: typeof item.price === "number" ? item.price : 0,
+      imageUrl:
+        item.imageUrl ||
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+      date: item.date || item.createdAt || new Date(),
+    }));
+
+    // 3. Return a polymorphic object wrapper so the frontend can read it via any common naming pattern
+    res.status(200).json({
+      templates: normalizedTemplates, // Matches your main endpoint structure
+      items: normalizedTemplates, // Fallback UI helper mapping
+    });
+  } catch (error) {
+    console.error(
+      "❌ MongoDB Management Workspace Fetch Pipeline Error:",
+      error,
+    );
+    res.status(500).json({
+      message: "Internal server error assembling dashboard asset resources.",
+    });
+  }
+});
+
+/**
+ * 🔍 4. GET: /api/items/:id
  * Fetches a single template entity by its Hexadecimal database ID string
  */
 router.get("/:id", async (req: Request, res: Response): Promise<void> => {
@@ -243,11 +303,53 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
     res.status(200).json(normalizedTemplate);
   } catch (error) {
     console.error("❌ Single Asset Retrieval Pipeline Failed:", error);
-    res
-      .status(500)
-      .json({
-        message: "Internal server error reading template record details.",
+    res.status(500).json({
+      message: "Internal server error reading template record details.",
+    });
+  }
+});
+
+/**
+ * 🗑️ 5. DELETE: /api/items/:id
+ * Permanently removes a specific asset template from MongoDB by its structural Hexadecimal ObjectId
+ */
+router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    if (!ObjectId.isValid(id)) {
+      res
+        .status(400)
+        .json({ message: "Invalid asset transaction tracking ID format." });
+      return;
+    }
+
+    const db = client.db("auraflow");
+    const collection = db.collection("items");
+
+    // Execute absolute document destruction condition match
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      res.status(404).json({
+        message:
+          "Requested asset template could not be located to process deletion.",
       });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Asset successfully scrubbed from persistent database records.",
+      id,
+    });
+  } catch (error) {
+    console.error(
+      "❌ MongoDB Deletion Engine Execution Pipeline Failed:",
+      error,
+    );
+    res.status(500).json({
+      message: "Internal server error executing target resource database drop.",
+    });
   }
 });
 
