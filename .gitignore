@@ -1,0 +1,75 @@
+# ==========================================
+# Dependencies & Build Outputs
+# ==========================================
+node_modules/
+/dist
+/build
+/out
+*.tsbuildinfo
+
+# ==========================================
+# Environment Variables & Secrets (CRITICAL!)
+# ==========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.pem
+*.key
+
+# ==========================================
+# Logs & Runtime Files
+# ==========================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ==========================================
+# Testing & Coverage
+# ==========================================
+coverage/
+.nyc_output
+.pytest_cache/
+.eslintcache
+
+# ==========================================
+# Local Databases & Media Uploads
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+/uploads/
+/media/
+
+# ==========================================
+# Python Virtual Environments (If applicable)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# ==========================================
+# IDEs, Editors & OS Files
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
