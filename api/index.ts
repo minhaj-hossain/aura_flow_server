@@ -38,13 +38,14 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // =========================================================================
-// 🚀 STEP 3: VERCEL PRODUCTION ENVIRONMENT LISTENER (ACTIVE)
-// Only allows the Express port listener to open when running outside of Vercel Production.
+// 🚀 STEP 3: ENVIRONMENT PORT LISTENER
+// Binds to host 0.0.0.0 on port 3000 for proper container ingress.
+// Only runs if NOT on Vercel, to prevent serverless execution port binding issues.
 // =========================================================================
-if (process.env.NODE_ENV !== "production") {
+if (!process.env.VERCEL) {
   const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`🚀 Safe listener active on port ${port}`);
+  app.listen(Number(port), "0.0.0.0", () => {
+    console.log(`🚀 Server listening on port ${port} (0.0.0.0)`);
   });
 }
 

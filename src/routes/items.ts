@@ -190,7 +190,6 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-
 /**
  * 📂 3. GET: /api/items/manage
  * Fetches user-created assets formatted directly for the management dashboard layout.
@@ -252,7 +251,7 @@ router.get("/manage", async (req: Request, res: Response): Promise<void> => {
  */
 router.get("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     // 1. Validate if the incoming string is a standard 24-character hexadecimal ObjectId
     if (!ObjectId.isValid(id)) {
@@ -311,7 +310,7 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
  */
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     if (!ObjectId.isValid(id)) {
       res
