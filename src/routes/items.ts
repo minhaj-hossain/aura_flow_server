@@ -190,11 +190,7 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-/**
- * 📂 3. GET: /api/items/manage
- * Fetches user-created assets formatted directly as an array for the management dashboard layout.
- * Optional query: ?userEmail=user@example.com to scope results down to a single user context.
- */
+
 /**
  * 📂 3. GET: /api/items/manage
  * Fetches user-created assets formatted directly for the management dashboard layout.

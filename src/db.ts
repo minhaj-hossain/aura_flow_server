@@ -6,7 +6,7 @@ dotenv.config();
 
 const uri = process.env.MONGODB_URI;
 
-// Safe Guard: If your .env key name is mistyped, this stops the server instantly with a clear error
+// Safe Guard: If your .env key name is mistyped, this stops the server
 if (!uri) {
   console.error(
     "❌ ERROR: MONGODB_URI is undefined! Check your .env file key name.",
@@ -29,7 +29,16 @@ export async function connectToMongoDB() {
     return client;
   } catch (err) {
     console.error("❌ Failed to connect to MongoDB:", err);
-    process.exit(1);
+
+    // =========================================================================
+    // 🔌 STEP 1: CHOOSE FAILURE BEHAVIOR (VERCEL MODE ACTIVE)
+    // =========================================================================
+
+    /* 👉 CHOICE A: VERCEL PRODUCTION BEHAVIOR (ACTIVE FOR DEPLOYMENT) */
+    throw err; // Safe for Serverless, allows Vercel to retry connections on subsequent requests
+
+    /* 👉 CHOICE B: LOCAL DEV BEHAVIOR (COMMENTED OUT FOR VERCEL) */
+    // process.exit(1); // Force-crashes your local server terminal so you know it failed instantly
   }
 }
 
