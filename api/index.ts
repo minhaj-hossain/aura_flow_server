@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from "express"; // 👈 STEP 1: Added NextFunction for serverless middleware
 import cors from "cors";
 import dotenv from "dotenv";
-import { connectToMongoDB } from "./db";
-import itemRoutes from "./routes/items";
+import { connectToMongoDB } from "../src/db"; // 👈 Updated path
+import itemRoutes from "../src/routes/items";
 
 dotenv.config();
 
